@@ -1,0 +1,162 @@
+import { Router } from 'express';
+import { supabaseAdmin } from '../supabase.js';
+import { requireAuth } from '../middleware/auth.js';
+
+const router = Router();
+
+// Overview stats
+router.get('/overview', requireAuth, async (req, res) => {
+  const [students, schools, results] = await Promise.all([
+    supabaseAdmin.from('students').select('id, level, school_id, gender'),
+    supabaseAdmin.from('schools').select('id, name, location'),
+    supabaseAdmin.from('results').select('student_id, year, term, subjects, student:students(level, gender)')
+  ]);
+
+  const calcMean = (subjects) => {
+    if (!subjects) return null;
+    const vals = Object.values(subjects).map(Number).filter(v => !isNaN(v) && v >= 0);
+    return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+  };
+
+  // Latest result per student
+  const latestByStudent = {};
+  (results.data || []).forEach(r => {
+    const key = r.student_id;
+    if (!latestByStudent[key] || r.year > latestByStudent[key].year ||
+      (r.year === latestByStudent[key].year && r.term > latestByStudent[key].term)) {
+      latestByStudent[key] = r;
+    }
+  });
+
+  const avgs = Object.values(latestByStudent).map(r => calcMean(r.subjects)).filter(x => x !== null);
+  const mean = avgs.length ? Math.round(avgs.reduce((a, b) => a + b, 0) / avgs.length) : null;
+  const atRisk = avgs.filter(a => a < 50).length;
+  const onTrack = avgs.filter(a => a >= 70).length;
+
+  // By level
+  const byLevel = {};
+  const levelMeans = {};
+  const levelCounts = {};
+
+  (students.data || []).forEach(s => { 
+    byLevel[s.level] = (byLevel[s.level] || 0) + 1; 
+    const lr = latestByStudent[s.id];
+    if (lr) {
+      const m = calcMean(lr.subjects);
+      if (m !== null) {
+        levelMeans[s.level] = (levelMeans[s.level] || 0) + m;
+        levelCounts[s.level] = (levelCounts[s.level] || 0) + 1;
+      }
+    }
+  });
+
+  const levelProgress = {};
+  Object.keys(levelMeans).forEach(lvl => {
+    levelProgress[lvl] = Math.round(levelMeans[lvl] / levelCounts[lvl]);
+  });
+
+  // Gender Performance
+  const genderStats = { Male: { sum: 0, count: 0 }, Female: { sum: 0, count: 0 }, Other: { sum: 0, count: 0 } };
+  (students.data || []).forEach(s => {
+    const lr = latestByStudent[s.id];
+    if (lr && s.gender && genderStats[s.gender]) {
+      const m = calcMean(lr.subjects);
+      if (m !== null) {
+        genderStats[s.gender].sum += m;
+        genderStats[s.gender].count += 1;
+      }
+    }
+  });
+  const genderMeans = {};
+  Object.keys(genderStats).forEach(g => {
+    genderMeans[g] = genderStats[g].count ? Math.round(genderStats[g].sum / genderStats[g].count) : null;
+  });
+
+  // Trends
+  const studentStats = (students.data || []).map(s => {
+    const sResults = (results.data || []).filter(r => r.student_id === s.id)
+      .sort((a, b) => a.year - b.year || a.term - b.term);
+    if (sResults.length < 2) return { id: s.id, trend: null, diff: 0 };
+    
+    const avgsArr = sResults.map(r => calcMean(r.subjects)).filter(x => x !== null);
+    if (avgsArr.length < 2) return { id: s.id, trend: null, diff: 0 };
+    
+    const diff = avgsArr[avgsArr.length - 1] - avgsArr[avgsArr.length - 2];
+    return { 
+      id: s.id, 
+      name: `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Student',
+      diff, 
+      trend: diff > 3 ? 'up' : diff < -3 ? 'down' : 'stable',
+      last_score: avgsArr[avgsArr.length - 1]
+    };
+  });
+
+  const improving = studentStats.filter(s => s.trend === 'up').length;
+  const declining = studentStats.filter(s => s.trend === 'down').length;
+  
+  const topImproved = [...studentStats].filter(s => s.trend === 'up').sort((a,b) => b.diff - a.diff).slice(0, 5);
+  const mostDeclined = [...studentStats].filter(s => s.trend === 'down').sort((a,b) => a.diff - b.diff).slice(0, 5);
+
+  // Overall Growth (Mean of all improvements/declines)
+  const validDiffs = studentStats.filter(s => s.diff !== 0).map(s => s.diff);
+  const avgGrowth = validDiffs.length ? (validDiffs.reduce((a,b) => a + b, 0) / validDiffs.length).toFixed(1) : 0;
+
+  res.json({
+    total_students: students.data?.length || 0,
+    total_schools: schools.data?.length || 0,
+    overall_mean: mean,
+    at_risk: atRisk,
+    on_track: onTrack,
+    improving,
+    declining,
+    by_level: byLevel,
+    level_progress: levelProgress,
+    gender_means: genderMeans,
+    avg_growth: avgGrowth,
+    focus_lists: {
+      improved: topImproved,
+      declined: mostDeclined
+    }
+  });
+});
+
+// School performance comparison
+router.get('/schools', requireAuth, async (req, res) => {
+  const { data: schools } = await supabaseAdmin.from('schools').select('id, name, location');
+  const { data: students } = await supabaseAdmin.from('students').select('id, school_id, level');
+  const { data: results } = await supabaseAdmin.from('results').select('student_id, year, term, subjects');
+
+  const calcMean = (subjects) => {
+    if (!subjects) return null;
+    const vals = Object.values(subjects).map(Number).filter(v => !isNaN(v) && v >= 0);
+    return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+  };
+
+  const latestByStudent = {};
+  (results || []).forEach(r => {
+    const key = r.student_id;
+    if (!latestByStudent[key] || r.year > latestByStudent[key].year || (r.year === latestByStudent[key].year && r.term > latestByStudent[key].term)) {
+      latestByStudent[key] = r;
+    }
+  });
+
+  const report = (schools || []).map(sch => {
+    const schStudents = (students || []).filter(s => s.school_id === sch.id);
+    const avgs = schStudents.map(s => {
+      const lr = latestByStudent[s.id];
+      return lr ? calcMean(lr.subjects) : null;
+    }).filter(x => x !== null);
+    const mean = avgs.length ? Math.round(avgs.reduce((a, b) => a + b, 0) / avgs.length) : null;
+    return {
+      school: sch,
+      student_count: schStudents.length,
+      mean_score: mean,
+      on_track: avgs.filter(a => a >= 70).length,
+      at_risk: avgs.filter(a => a < 50).length
+    };
+  }).sort((a, b) => (b.mean_score || 0) - (a.mean_score || 0));
+
+  res.json(report);
+});
+
+export default router;

@@ -1,0 +1,40 @@
+import { supabase } from './supabase';
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+async function getToken() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token;
+}
+async function req(method, path, body) {
+  const token = await getToken();
+  const res = await fetch(`${BASE}/api${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    ...(body ? { body: JSON.stringify(body) } : {})
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+export const api = {
+  getSchools: () => req('GET', '/schools'),
+  createSchool: (b) => req('POST', '/schools', b),
+  updateSchool: (id, b) => req('PUT', `/schools/${id}`, b),
+  deleteSchool: (id) => req('DELETE', `/schools/${id}`),
+  getStudents: (p = {}) => req('GET', `/students?${new URLSearchParams(p)}`),
+  getStudent: (id) => req('GET', `/students/${id}`),
+  createStudent: (b) => req('POST', '/students', b),
+  updateStudent: (id, b) => req('PUT', `/students/${id}`, b),
+  deleteStudent: (id) => req('DELETE', `/students/${id}`),
+  getResults: (p = {}) => req('GET', `/results?${new URLSearchParams(p)}`),
+  createResult: (b) => req('POST', '/results', b),
+  updateResult: (id, b) => req('PUT', `/results/${id}`, b),
+  deleteResult: (id) => req('DELETE', `/results/${id}`),
+  getAdmins: () => req('GET', '/admins'),
+  inviteAdmin: (b) => req('POST', '/admins/invite', b),
+  deleteAdmin: (id) => req('DELETE', `/admins/${id}`),
+  linkAdmin: () => req('POST', '/admins/link', {}),
+  getOverview: () => req('GET', '/reports/overview'),
+  getSchoolReport: () => req('GET', '/reports/schools'),
+  getSettings: () => req('GET', '/settings'),
+  updateSettings: (b) => req('PUT', '/settings', b),
+};
