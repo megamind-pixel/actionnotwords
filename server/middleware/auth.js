@@ -34,6 +34,15 @@ export function requireAdmin(req, res, next) {
   });
 }
 
+export function requireEditor(req, res, next) {
+  requireAdmin(req, res, () => {
+    if (req.admin?.role === 'viewer') {
+      return res.status(403).json({ error: 'Read-only access. You cannot modify data.' });
+    }
+    next();
+  });
+}
+
 export function requireSuperAdmin(req, res, next) {
   requireAdmin(req, res, () => {
     if (req.admin?.role !== 'super_admin') {

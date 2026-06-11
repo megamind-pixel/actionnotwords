@@ -109,7 +109,7 @@ export default function Schools() {
 
       {schools.length === 0 ? (
         <div className="card"><div className="empty-state">
-          <School strokeWidth={1.2} /><p>No schools yet. <button className="btn btn-primary btn-sm" onClick={()=>setModal('add')} style={{marginTop:12}}>Add first school</button></p>
+          <School strokeWidth={1.2} /><p>No schools yet. {admin?.role !== 'viewer' && <button className="btn btn-primary btn-sm" onClick={()=>setModal('add')} style={{marginTop:12}}>Add first school</button>}</p>
         </div></div>
       ) : (
         <div className="grid-3">
@@ -139,6 +139,10 @@ export default function Schools() {
 
       <ConfirmDialog open={!!delId} onClose={()=>setDelId(null)} onConfirm={deleteSchool}
         title="Delete School" message="Delete this school? Students will be unlinked." danger />
+    </div>
+  );
+}
+nger />
     </div>
   );
 }

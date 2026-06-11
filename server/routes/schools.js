@@ -29,10 +29,11 @@ router.put('/:id', requireAdmin, async (req, res) => {
   res.json(data);
 });
 
-router.delete('/:id', requireAdmin, async (req, res) => {
+router.delete('/:id', requireEditor, async (req, res) => {
   const { error } = await supabaseAdmin.from('schools').delete().eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
 });
 
 export default router;
+fault router;

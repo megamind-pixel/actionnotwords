@@ -167,7 +167,7 @@ export default function Results() {
 
         {filtered.length===0 ? (
           <div className="card"><div className="empty-state">
-            <p>No results yet. <button className="btn btn-primary btn-sm" onClick={()=>setModal({})} style={{marginTop:12}}>Enter first results</button></p>
+            <p>No results yet. {admin?.role !== 'viewer' && <button className="btn btn-primary btn-sm" onClick={()=>setModal({})} style={{marginTop:12}}>Enter first results</button>}</p>
           </div></div>
         ) : (
           <div className="card card-p0"><div className="table-wrap">
@@ -213,6 +213,11 @@ export default function Results() {
 
       <ConfirmDialog open={!!delId} onClose={()=>setDelId(null)} onConfirm={deleteResult}
         title="Delete Result" message="Delete this result record? Cannot be undone." danger/>
+    </div>
+  );
+}
+
+sult record? Cannot be undone." danger/>
     </div>
   );
 }

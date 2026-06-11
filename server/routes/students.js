@@ -48,7 +48,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
   res.json(data);
 });
 
-router.delete('/:id', requireAdmin, async (req, res) => {
+router.delete('/:id', requireEditor, async (req, res) => {
   await supabaseAdmin.from('results').delete().eq('student_id', req.params.id);
   const { error } = await supabaseAdmin.from('students').delete().eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });

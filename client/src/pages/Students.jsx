@@ -592,8 +592,12 @@ export default function Students() {
                       <td>
                         <div className="flex-center gap-6">
                           <button className="btn btn-ghost btn-sm" onClick={()=>viewProfile(s.id)}><Eye size={12}/> View</button>
-                          <button className="btn btn-secondary btn-sm" onClick={()=>setModal(s)}><Pencil size={12}/> Edit</button>
-                          <button className="btn btn-danger btn-sm" onClick={()=>setDelId(s.id)}><Trash2 size={12}/> Del</button>
+                          {admin?.role !== 'viewer' && (
+                            <>
+                              <button className="btn btn-secondary btn-sm" onClick={()=>setModal(s)}><Pencil size={12}/> Edit</button>
+                              <button className="btn btn-danger btn-sm" onClick={()=>setDelId(s.id)}><Trash2 size={12}/> Del</button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

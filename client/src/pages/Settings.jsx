@@ -101,23 +101,25 @@ export default function Settings() {
 
           <form onSubmit={save}>
             <div className="form-group"><label className="form-label">Organisation Name</label>
-              <input className="form-input" value={settings.org_name} onChange={e=>setSettings({...settings, org_name: e.target.value})} placeholder="Actions Not Words" />
+              <input className="form-input" value={settings.org_name} onChange={e=>setSettings({...settings, org_name: e.target.value})} placeholder="Actions Not Words" readOnly={admin?.role !== 'super_admin'} />
             </div>
             <div className="form-row">
               <div className="form-group"><label className="form-label">Current Academic Year</label>
-                <select className="form-select" value={year} onChange={e=>setYear(e.target.value)}>
+                <select className="form-select" value={year} onChange={e=>setYear(e.target.value)} disabled={admin?.role !== 'super_admin'}>
                   {['2022','2023','2024','2025','2026'].map(y=><option key={y}>{y}</option>)}
                 </select>
               </div>
               <div className="form-group"><label className="form-label">Active Term</label>
-                <select className="form-select" value={term} onChange={e=>setTerm(e.target.value)}>
+                <select className="form-select" value={term} onChange={e=>setTerm(e.target.value)} disabled={admin?.role !== 'super_admin'}>
                   <option value="1">Term 1</option><option value="2">Term 2</option><option value="3">Term 3</option>
                 </select>
               </div>
             </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={saving}>
-              {saving ? 'Saving...' : 'Update Program Details'}
-            </button>
+            {admin?.role === 'super_admin' && (
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={saving}>
+                {saving ? 'Saving...' : 'Update Program Details'}
+              </button>
+            )}
           </form>
         </div>
 ...
