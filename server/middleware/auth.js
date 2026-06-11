@@ -9,19 +9,33 @@ export async function requireAuth(req, res, next) {
   try {
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
     if (error || !user) return res.status(401).json({ error: 'Invalid token' });
+    
+    // Find admin by user_id OR email (for initial linking)
     const { data: admin } = await supabaseAdmin
-      .from('admins').select('*').eq('user_id', user.id).single();
-    if (!admin) return res.status(403).json({ error: 'Not an authorized admin' });
+      .from('admins')
+      .select('*')
+      .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+      .single();
+
     req.user = user;
-    req.admin = admin;
+    req.admin = admin; // Might be null if not invited yet
     next();
   } catch (e) {
     return res.status(401).json({ error: 'Auth error' });
   }
 }
 
-export async function requireSuperAdmin(req, res, next) {
-  await requireAuth(req, res, () => {
+export function requireAdmin(req, res, next) {
+  requireAuth(req, res, () => {
+    if (!req.admin || req.admin.status !== 'active') {
+      return res.status(403).json({ error: 'Active admin access required' });
+    }
+    next();
+  });
+}
+
+export function requireSuperAdmin(req, res, next) {
+  requireAdmin(req, res, () => {
     if (req.admin?.role !== 'super_admin') {
       return res.status(403).json({ error: 'Super admin access required' });
     }

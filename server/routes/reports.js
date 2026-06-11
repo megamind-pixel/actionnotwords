@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../supabase.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
 
 // Overview stats
-router.get('/overview', requireAuth, async (req, res) => {
+router.get('/overview', requireAdmin, async (req, res) => {
   const [students, schools, results] = await Promise.all([
     supabaseAdmin.from('students').select('id, level, school_id, gender'),
     supabaseAdmin.from('schools').select('id, name, location'),
@@ -121,7 +121,7 @@ router.get('/overview', requireAuth, async (req, res) => {
 });
 
 // School performance comparison
-router.get('/schools', requireAuth, async (req, res) => {
+router.get('/schools', requireAdmin, async (req, res) => {
   const { data: schools } = await supabaseAdmin.from('schools').select('id, name, location');
   const { data: students } = await supabaseAdmin.from('students').select('id, school_id, level');
   const { data: results } = await supabaseAdmin.from('results').select('student_id, year, term, subjects');
