@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const BASE = import.meta.env.VITE_API_URL || '';
 async function getToken() {
   const { data: { session } } = await supabase.auth.getSession();
   return session?.access_token;

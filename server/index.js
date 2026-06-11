@@ -1,7 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import schoolsRouter from './routes/schools.js';
 import studentsRouter from './routes/students.js';
@@ -13,11 +18,8 @@ import settingsRouter from './routes/settings.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173', credentials: true }));
+app.use(cors());
 app.use(express.json());
-
-// Health check
-app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 // Routes
 app.use('/api/schools', schoolsRouter);
@@ -27,6 +29,19 @@ app.use('/api/admins', adminsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/settings', settingsRouter);
 
+// Serve Static Frontend in Production
+const clientDist = path.join(__dirname, '../client/dist');
+app.use(express.static(clientDist));
+
+// Health check
+app.get('/health', (_, res) => res.json({ status: 'ok' }));
+
+// Catch-all to serve index.html for React Router
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) return res.status(404).json({ error: 'Not found' });
+  res.sendFile(path.join(clientDist, 'index.html'));
+});
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -34,6 +49,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 ANW Server running on http://localhost:${PORT}`);
-  console.log(`   Supabase: ${process.env.SUPABASE_URL || '⚠️  Not configured'}`);
+  console.log(`\n🚀 ANW Monolith running on port ${PORT}`);
 });
