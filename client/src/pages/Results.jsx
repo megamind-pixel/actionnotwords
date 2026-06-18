@@ -272,8 +272,3 @@ export default function Results() {
     </div>
   );
 }
-
-sult record? Cannot be undone." danger/>
-    </div>
-  );
-}
