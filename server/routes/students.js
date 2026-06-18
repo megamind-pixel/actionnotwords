@@ -25,7 +25,7 @@ router.get('/:id', requireAdmin, async (req, res) => {
   res.json(data);
 });
 
-router.post('/', requireAdmin, async (req, res) => {
+router.post('/', requireEditor, async (req, res) => {
   const { first_name, last_name, school_id, level, class_name, ref_no, dob, gender, parent_name, parent_phone, sponsorship_date, photo_url, notes } = req.body;
   if (!first_name || !last_name || !school_id || !level) {
     return res.status(400).json({ error: 'first_name, last_name, school_id, level required' });
@@ -37,7 +37,7 @@ router.post('/', requireAdmin, async (req, res) => {
   res.status(201).json(data);
 });
 
-router.put('/:id', requireAdmin, async (req, res) => {
+router.put('/:id', requireEditor, async (req, res) => {
   const fields = ['first_name','last_name','school_id','level','class_name','ref_no','dob','gender','parent_name','parent_phone','sponsorship_date','photo_url','notes'];
   const update = {};
   fields.forEach(f => { if (req.body[f] !== undefined) update[f] = req.body[f]; });

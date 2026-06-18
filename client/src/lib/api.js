@@ -33,6 +33,7 @@ export const api = {
   inviteAdmin: (b) => req('POST', '/admins/invite', b),
   deleteAdmin: (id) => req('DELETE', `/admins/${id}`),
   linkAdmin: () => req('POST', '/admins/link', {}),
+  getMe: () => req('GET', '/admins/me'),
   getOverview: () => req('GET', '/reports/overview'),
   getSchoolReport: () => req('GET', '/reports/schools'),
   getSettings: () => req('GET', '/settings'),

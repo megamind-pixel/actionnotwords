@@ -159,9 +159,9 @@ function StudentForm({ initial, schools, onSave, onClose }) {
 
 function ProfileModal({ student, open, onClose, onEdit }) {
   const { settings } = useAuth();
+  const navigate = useNavigate();
   
   if (!student) return null;
-  const navigate = (path) => window.location.href = path; // Simple navigate for this context
   const results = student.results || [];
   const sorted = [...results].sort((a,b)=>a.year-b.year||a.term-b.term);
   const latest = sorted[sorted.length-1];
@@ -194,7 +194,7 @@ function ProfileModal({ student, open, onClose, onEdit }) {
             </div>
           </div>
           <div className="flex-center gap-12">
-            <button className="btn btn-primary" onClick={() => window.location.href=`/results?student_id=${student.id}&action=add`}>
+            <button className="btn btn-primary" onClick={() => navigate(`/results?student_id=${student.id}&action=add`)}>
               <Plus size={16} /> Add Result
             </button>
             <button className="btn btn-secondary" onClick={handlePrint}><Download size={16} /></button>

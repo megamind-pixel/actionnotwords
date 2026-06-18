@@ -17,7 +17,7 @@ router.get('/', requireAdmin, async (req, res) => {
   res.json(data);
 });
 
-router.post('/', requireAdmin, async (req, res) => {
+router.post('/', requireEditor, async (req, res) => {
   const { student_id, year, term, exam_type, subjects, position, class_size, remarks } = req.body;
   if (!student_id || !year || !term || !subjects) {
     return res.status(400).json({ error: 'student_id, year, term, subjects required' });
@@ -32,7 +32,7 @@ router.post('/', requireAdmin, async (req, res) => {
   res.status(201).json(data);
 });
 
-router.put('/:id', requireAdmin, async (req, res) => {
+router.put('/:id', requireEditor, async (req, res) => {
   const { subjects, position, class_size, remarks, exam_type } = req.body;
   const { data, error } = await supabaseAdmin
     .from('results').update({ subjects, position, class_size, remarks, exam_type })

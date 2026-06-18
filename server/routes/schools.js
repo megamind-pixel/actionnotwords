@@ -11,7 +11,7 @@ router.get('/', requireAdmin, async (req, res) => {
   res.json(data);
 });
 
-router.post('/', requireAdmin, async (req, res) => {
+router.post('/', requireEditor, async (req, res) => {
   const { name, location, type, curriculum, contact_name, contact_phone } = req.body;
   if (!name || !location) return res.status(400).json({ error: 'Name and location required' });
   const { data, error } = await supabaseAdmin
@@ -20,7 +20,7 @@ router.post('/', requireAdmin, async (req, res) => {
   res.status(201).json(data);
 });
 
-router.put('/:id', requireAdmin, async (req, res) => {
+router.put('/:id', requireEditor, async (req, res) => {
   const { name, location, type, curriculum, contact_name, contact_phone } = req.body;
   const { data, error } = await supabaseAdmin
     .from('schools').update({ name, location, type, curriculum, contact_name, contact_phone })

@@ -12,8 +12,21 @@ import Admins from './pages/Admins';
 import Settings from './pages/Settings';
 
 function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user, loading, unauthorized, signOut } = useAuth();
   if (loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}><div className="spinner"/></div>;
+  
+  if (user && unauthorized) {
+    return (
+      <div className="flex-center" style={{minHeight:'100vh', flexDirection:'column', gap: 20, padding: 20, textAlign: 'center'}}>
+        <div className="card" style={{maxWidth: 400}}>
+          <h2 className="mb-16">Access Restricted</h2>
+          <p className="text-muted mb-24">Your account ({user.email}) is not yet linked to an active admin record. Please contact your Super Admin to activate your access.</p>
+          <button className="btn btn-primary w-full" onClick={signOut}>Sign Out</button>
+        </div>
+      </div>
+    );
+  }
+  
   return user ? children : <Navigate to="/login" replace />;
 }
 

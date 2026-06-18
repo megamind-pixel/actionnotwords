@@ -10,6 +10,11 @@ router.get('/', requireSuperAdmin, async (req, res) => {
   res.json(data);
 });
 
+// Get current admin info
+router.get('/me', requireAuth, async (req, res) => {
+  res.json(req.admin || null);
+});
+
 // Invite: create pending admin record, send magic link via Supabase
 router.post('/invite', requireSuperAdmin, async (req, res) => {
   const { email, name, role = 'admin' } = req.body;
