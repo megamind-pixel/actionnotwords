@@ -36,4 +36,5 @@ router.delete('/:id', requireEditor, async (req, res) => {
 });
 
 export default router;
+efault router;
 fault router;
