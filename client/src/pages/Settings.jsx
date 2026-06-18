@@ -149,12 +149,12 @@ export default function Settings() {
             <GraduationCap size={20} color="var(--blue)" />
           </div>
           <div className="text-sm mb-12" style={{ padding: 10, background: 'var(--off)', borderRadius: 8 }}>
-            <strong>Primary (CBC):</strong><br/>
-            <span className="text-muted">EE (Exceeds) ≥80% | ME (Meets) 60-79%</span>
+            <strong>Primary & Junior Secondary (CBC):</strong><br/>
+            <span className="text-muted">EE (Exceeds) ≥80% | ME (Meets) 60-79% | AE (Approaches) 40-59%</span>
           </div>
           <div className="text-sm mb-12" style={{ padding: 10, background: 'var(--off)', borderRadius: 8 }}>
-            <strong>Secondary (8-4-4):</strong><br/>
-            <span className="text-muted">Standard KCSE A-E scale with points calculation.</span>
+            <strong>Senior Secondary (8-4-4):</strong><br/>
+            <span className="text-muted">Form 1–4. Standard KCSE A-E scale with points calculation.</span>
           </div>
           <p className="text-xs text-muted">Grading rules are locked to Kenya's national education standard to ensure reporting consistency.</p>
         </div>

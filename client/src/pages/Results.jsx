@@ -25,14 +25,17 @@ function ResultForm({ initial, students, onSave, onClose }) {
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
   const setSubject = (sub, val) => setForm(f=>({...f, subjects:{...f.subjects,[sub]:val}}));
 
-  const student = students.find(s=>s.id===form.student_id);
-  const subs = student ? SUBJECTS[student.level] || [] : [];
-  const curriculum = student ? LEVELS[student.level]?.curriculum : null;
+  const student = students.find(s => s.id === form.student_id);
+  const studentLevel = student?.level;
+  const subs = studentLevel ? SUBJECTS[studentLevel] || [] : [];
+  const curriculum = studentLevel ? LEVELS[studentLevel]?.curriculum : null;
 
   useEffect(() => {
     if (student) {
-      // Clear subjects if level changes (unless initial load)
-      setForm(f => ({...f, subjects: initial?.student_id === form.student_id ? f.subjects : {}}));
+      // If we're adding a new result and the student changed, or if it's the first time we've selected a student
+      if (!initial?.id && form.student_id !== initial?.student_id) {
+        setForm(f => ({ ...f, subjects: {} }));
+      }
     }
   }, [form.student_id, student]);
 
@@ -53,7 +56,11 @@ function ResultForm({ initial, students, onSave, onClose }) {
         <div className="form-group"><label className="form-label">Student *</label>
           <select className="form-select" value={form.student_id} onChange={e=>set('student_id',e.target.value)} required>
             <option value="">Select student</option>
-            {students.map(s=><option key={s.id} value={s.id}>{s.first_name} {s.last_name} ({s.ref_no||'—'})</option>)}
+            {students.map(s=>(
+              <option key={s.id} value={s.id}>
+                {s.first_name} {s.last_name} — {LEVELS[s.level]?.label || s.level}
+              </option>
+            ))}
           </select>
         </div>
         <div className="form-group"><label className="form-label">Academic Year *</label>
