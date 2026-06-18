@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, School } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 
@@ -61,6 +62,7 @@ function SchoolForm({ initial, onSave, onClose }) {
 }
 
 export default function Schools() {
+  const { admin } = useAuth();
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null); // null | 'add' | school_object

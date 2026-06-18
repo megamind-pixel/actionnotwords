@@ -32,15 +32,6 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function fetchAdmin() {
-    try {
-      // The admin record comes back from link or we can check the session
-      setLoading(false);
-    } catch {
-      setLoading(false);
-    }
-  }
-
   async function signInWithEmail(email, password) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;

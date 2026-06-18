@@ -4,7 +4,7 @@ import {
   Plus, Eye, Pencil, Trash2, Users, Download, 
   UserCircle, Upload, Loader2, Search, Filter,
   MoreVertical, Mail, Phone, Calendar, MapPin,
-  GraduationCap, TrendingUp, TrendingDown, Minus
+  GraduationCap, TrendingUp, TrendingDown, Minus, User
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
@@ -158,9 +158,10 @@ function StudentForm({ initial, schools, onSave, onClose }) {
 }
 
 function ProfileModal({ student, open, onClose, onEdit }) {
+  const { settings } = useAuth();
+  
   if (!student) return null;
   const navigate = (path) => window.location.href = path; // Simple navigate for this context
-  const { settings } = useAuth();
   const results = student.results || [];
   const sorted = [...results].sort((a,b)=>a.year-b.year||a.term-b.term);
   const latest = sorted[sorted.length-1];
