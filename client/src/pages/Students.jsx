@@ -356,7 +356,10 @@ function ProfileModal({ student, open, onClose, onEdit }) {
               <TrendBadge trend={trend} />
             </div>
           </div>
-          <div style={{ marginLeft: 'auto' }}>
+          <div style={{ marginLeft: 'auto' }} className="flex-center gap-8">
+            <button className="btn btn-primary btn-sm" onClick={() => navigate(`/results?student_id=${student.id}&action=add`)}>
+               <Plus size={13} /> Add Result
+            </button>
             <button className="btn btn-secondary btn-sm" onClick={handlePrint}>
               <Download size={13} /> PDF
             </button>

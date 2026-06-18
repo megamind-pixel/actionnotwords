@@ -33,10 +33,12 @@ router.get('/overview', requireAdmin, async (req, res) => {
   const atRisk = avgs.filter(a => a < 50).length;
   const onTrack = avgs.filter(a => a >= 70).length;
 
-  // By level
+  // By level and class
   const byLevel = {};
   const levelMeans = {};
   const levelCounts = {};
+  const classMeans = {};
+  const classCounts = {};
 
   (students.data || []).forEach(s => { 
     byLevel[s.level] = (byLevel[s.level] || 0) + 1; 
@@ -46,6 +48,11 @@ router.get('/overview', requireAdmin, async (req, res) => {
       if (m !== null) {
         levelMeans[s.level] = (levelMeans[s.level] || 0) + m;
         levelCounts[s.level] = (levelCounts[s.level] || 0) + 1;
+        
+        if (s.class_name) {
+          classMeans[s.class_name] = (classMeans[s.class_name] || 0) + m;
+          classCounts[s.class_name] = (classCounts[s.class_name] || 0) + 1;
+        }
       }
     }
   });
@@ -53,6 +60,11 @@ router.get('/overview', requireAdmin, async (req, res) => {
   const levelProgress = {};
   Object.keys(levelMeans).forEach(lvl => {
     levelProgress[lvl] = Math.round(levelMeans[lvl] / levelCounts[lvl]);
+  });
+
+  const classProgress = {};
+  Object.keys(classMeans).forEach(cls => {
+    classProgress[cls] = Math.round(classMeans[cls] / classCounts[cls]);
   });
 
   // Gender Performance
@@ -101,6 +113,60 @@ router.get('/overview', requireAdmin, async (req, res) => {
   const validDiffs = studentStats.filter(s => s.diff !== 0).map(s => s.diff);
   const avgGrowth = validDiffs.length ? (validDiffs.reduce((a,b) => a + b, 0) / validDiffs.length).toFixed(1) : 0;
 
+  // ── Subject Performance (All time) ──
+  const subjectStats = {};
+  (results.data || []).forEach(r => {
+    Object.entries(r.subjects || {}).forEach(([sub, mark]) => {
+      const m = Number(mark);
+      if (!isNaN(m)) {
+        if (!subjectStats[sub]) subjectStats[sub] = { sum: 0, count: 0 };
+        subjectStats[sub].sum += m;
+        subjectStats[sub].count += 1;
+      }
+    });
+  });
+  const subjectMeans = {};
+  Object.keys(subjectStats).forEach(s => {
+    subjectMeans[s] = Math.round(subjectStats[s].sum / subjectStats[s].count);
+  });
+
+  // ── Grade Distribution (Latest Results) ──
+  const getGrade = (mark, level) => {
+    const m = Number(mark);
+    if (level === 'secondary') {
+      if (m >= 75) return 'A'; if (m >= 70) return 'A-'; if (m >= 65) return 'B+';
+      if (m >= 60) return 'B'; if (m >= 55) return 'B-'; if (m >= 50) return 'C+';
+      if (m >= 45) return 'C'; if (m >= 40) return 'C-'; if (m >= 35) return 'D+';
+      if (m >= 30) return 'D'; if (m >= 25) return 'D-'; return 'E';
+    }
+    if (m >= 80) return 'EE'; if (m >= 60) return 'ME'; if (m >= 40) return 'AE'; return 'BE';
+  };
+
+  const gradeDist = { A:0, 'A-':0, 'B+':0, B:0, 'B-':0, 'C+':0, C:0, 'C-':0, 'D+':0, D:0, 'D-':0, E:0, EE:0, ME:0, AE:0, BE:0 };
+  Object.values(latestByStudent).forEach(r => {
+    const m = calcMean(r.subjects);
+    if (m !== null) {
+      const g = getGrade(m, r.student?.level);
+      gradeDist[g] = (gradeDist[g] || 0) + 1;
+    }
+  });
+
+  // ── Historical Trends (Overall Mean per Term) ──
+  const termHistory = {};
+  (results.data || []).forEach(r => {
+    const key = `${r.year} T${r.term}`;
+    const m = calcMean(r.subjects);
+    if (m !== null) {
+      if (!termHistory[key]) termHistory[key] = { sum: 0, count: 0 };
+      termHistory[key].sum += m;
+      termHistory[key].count += 1;
+    }
+  });
+  const history = Object.keys(termHistory).sort().map(key => ({
+    name: key,
+    score: Math.round(termHistory[key].sum / termHistory[key].count)
+  }));
+
   res.json({
     total_students: students.data?.length || 0,
     total_schools: schools.data?.length || 0,
@@ -111,7 +177,11 @@ router.get('/overview', requireAdmin, async (req, res) => {
     declining,
     by_level: byLevel,
     level_progress: levelProgress,
+    class_progress: classProgress,
     gender_means: genderMeans,
+    subject_means: subjectMeans,
+    grade_distribution: gradeDist,
+    history,
     avg_growth: avgGrowth,
     focus_lists: {
       improved: topImproved,

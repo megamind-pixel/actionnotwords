@@ -3,11 +3,11 @@ import { Building2, GraduationCap, ShieldCheck, History, Upload, Loader2, Image 
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 export default function Settings() {
-  const [settings, setSettings] = useState({ org_name: 'Actions Not Words', logo_url: '' });
-  const [year, setYear] = useState('2025');
-  const [term, setTerm] = useState('2');
+  const { admin, settings: globalSettings, setSettings: setGlobalSettings } = useAuth();
+  const [settings, setSettings] = useState({ org_name: 'Actions Not Words', logo_url: '', current_year: '2025', current_term: '1' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -42,6 +42,7 @@ export default function Settings() {
 
       const updated = await api.updateSettings({ logo_url: publicUrl });
       setSettings(updated);
+      setGlobalSettings(updated);
       toast.success('Logo updated!');
     } catch (err) {
       console.error(err);
@@ -55,8 +56,13 @@ export default function Settings() {
     e.preventDefault();
     setSaving(true);
     try {
-      const updated = await api.updateSettings({ org_name: settings.org_name });
+      const updated = await api.updateSettings({ 
+        org_name: settings.org_name,
+        current_year: settings.current_year,
+        current_term: settings.current_term
+      });
       setSettings(updated);
+      setGlobalSettings(updated);
       toast.success('Settings saved');
     } catch (err) {
       toast.error(err.message);
@@ -105,12 +111,12 @@ export default function Settings() {
             </div>
             <div className="form-row">
               <div className="form-group"><label className="form-label">Current Academic Year</label>
-                <select className="form-select" value={year} onChange={e=>setYear(e.target.value)} disabled={admin?.role !== 'super_admin'}>
+                <select className="form-select" value={settings.current_year} onChange={e=>setSettings({...settings, current_year: e.target.value})} disabled={admin?.role !== 'super_admin'}>
                   {['2022','2023','2024','2025','2026'].map(y=><option key={y}>{y}</option>)}
                 </select>
               </div>
               <div className="form-group"><label className="form-label">Active Term</label>
-                <select className="form-select" value={term} onChange={e=>setTerm(e.target.value)} disabled={admin?.role !== 'super_admin'}>
+                <select className="form-select" value={settings.current_term} onChange={e=>setSettings({...settings, current_term: e.target.value})} disabled={admin?.role !== 'super_admin'}>
                   <option value="1">Term 1</option><option value="2">Term 2</option><option value="3">Term 3</option>
                 </select>
               </div>

@@ -54,7 +54,7 @@ CREATE TABLE results (
   student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
   year TEXT NOT NULL,
   term TEXT NOT NULL CHECK (term IN ('1','2','3')),
-  exam_type TEXT DEFAULT 'end_term' CHECK (exam_type IN ('end_term','mock','kcpe','kcse')),
+  exam_type TEXT DEFAULT 'end_term' CHECK (exam_type IN ('end_term','mock','kcpe','kcse','kpsea','kjsea')),
   subjects JSONB NOT NULL DEFAULT '{}',
   position INTEGER,
   class_size INTEGER,
@@ -68,6 +68,8 @@ CREATE TABLE settings (
   id INTEGER PRIMARY KEY DEFAULT 1,
   org_name TEXT NOT NULL DEFAULT 'Actions Not Words',
   logo_url TEXT,
+  current_year TEXT DEFAULT '2025',
+  current_term TEXT DEFAULT '1',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   CONSTRAINT one_row CHECK (id = 1)
 );

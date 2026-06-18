@@ -1,19 +1,40 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 import { SUBJECTS, LEVELS, calcMean, getGrade, gradeColor } from '../lib/kenya';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 
 function ResultForm({ initial, students, onSave, onClose }) {
-  const [form, setForm] = useState({ student_id:'', year:new Date().getFullYear().toString(), term:'2', exam_type:'end_term', subjects:{}, position:'', class_size:'', remarks:'', ...initial });
+  const { settings } = useAuth();
+  const [form, setForm] = useState({ 
+    student_id:'', 
+    year: settings.current_year || new Date().getFullYear().toString(), 
+    term: settings.current_term || '1', 
+    exam_type: 'end_term', 
+    subjects: {}, 
+    position: '', 
+    class_size: '', 
+    remarks: '', 
+    ...initial 
+  });
   const [saving, setSaving] = useState(false);
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
   const setSubject = (sub, val) => setForm(f=>({...f, subjects:{...f.subjects,[sub]:val}}));
 
   const student = students.find(s=>s.id===form.student_id);
   const subs = student ? SUBJECTS[student.level] || [] : [];
+  const curriculum = student ? LEVELS[student.level]?.curriculum : null;
+
+  useEffect(() => {
+    if (student) {
+      // Clear subjects if level changes (unless initial load)
+      setForm(f => ({...f, subjects: initial?.student_id === form.student_id ? f.subjects : {}}));
+    }
+  }, [form.student_id, student]);
 
   async function submit(e) {
     e.preventDefault();
@@ -49,25 +70,48 @@ function ResultForm({ initial, students, onSave, onClose }) {
         </div>
         <div className="form-group"><label className="form-label">Exam Type</label>
           <select className="form-select" value={form.exam_type} onChange={e=>set('exam_type',e.target.value)}>
-            <option value="end_term">End of Term</option><option value="mock">Mock Exam</option>
-            <option value="kcpe">KCPE</option><option value="kcse">KCSE</option>
+            <option value="end_term">End of Term</option>
+            <option value="mock">Mock Exam</option>
+            {student && LEVELS[student.level]?.curriculum === 'CBC' ? (
+              <>
+                <option value="kpsea">KPSEA (Grade 6)</option>
+                <option value="kjsea">KJSEA (Grade 9)</option>
+              </>
+            ) : (
+              <>
+                <option value="kcpe">KCPE</option>
+                <option value="kcse">KCSE</option>
+              </>
+            )}
           </select>
         </div>
       </div>
 
       {student && subs.length > 0 && (
-        <div style={{marginBottom:14}}>
-          <div className="form-label" style={{marginBottom:8}}>
-            Marks — {LEVELS[student.level]?.label} ({student.first_name} {student.last_name})
+        <div style={{marginBottom:18, border:'1px solid var(--g1)', borderRadius:8, padding:12, background:'var(--fcfcfc)'}}>
+          <div className="flex-between mb-12">
+            <div className="form-label" style={{margin:0, fontWeight:700}}>
+              Marks — {student.first_name} {student.last_name}
+            </div>
+            <span className={`badge ${curriculum === 'CBC' ? 'badge-blue' : 'badge-gray'}`} style={{fontSize:10, textTransform:'uppercase'}}>
+              {curriculum} Curriculum · {LEVELS[student.level]?.label}
+            </span>
           </div>
           <div className="form-row-3">
-            {subs.map(sub => (
-              <div key={sub} className="form-group" style={{marginBottom:10}}>
-                <label className="form-label" style={{fontSize:11}}>{sub}</label>
-                <input className="form-input" type="number" min="0" max="100" placeholder="0–100"
-                  value={form.subjects[sub]??''} onChange={e=>setSubject(sub, e.target.value)}/>
-              </div>
-            ))}
+            {subs.map(sub => {
+              const val = form.subjects[sub];
+              const grade = getGrade(val, student.level);
+              return (
+                <div key={sub} className="form-group" style={{marginBottom:10}}>
+                  <div className="flex-between" style={{marginBottom:4}}>
+                    <label className="form-label" style={{fontSize:11, margin:0, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} title={sub}>{sub}</label>
+                    {val && <span className={`badge badge-${gradeColor(grade)}`} style={{fontSize:9, padding:'1px 4px'}}>{grade}</span>}
+                  </div>
+                  <input className="form-input" type="number" min="0" max="100" placeholder="0–100"
+                    value={val??''} onChange={e=>setSubject(sub, e.target.value)}/>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -92,18 +136,30 @@ function ResultForm({ initial, students, onSave, onClose }) {
 }
 
 export default function Results() {
+  const { admin } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [results, setResults] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [delId, setDelId] = useState(null);
-  const [filterStudent, setFilterStudent] = useState('');
+  const [filterStudent, setFilterStudent] = useState(searchParams.get('student_id') || '');
   const [filterTerm, setFilterTerm] = useState('');
 
   async function load() {
     try {
       const [r, s] = await Promise.all([api.getResults(), api.getStudents()]);
       setResults(r); setStudents(s);
+      
+      const autoAdd = searchParams.get('action') === 'add';
+      const studentId = searchParams.get('student_id');
+      if (autoAdd && studentId) {
+        setModal({ student_id: studentId });
+        // Clear params to avoid reopening on refresh
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('action');
+        setSearchParams(newParams, { replace: true });
+      }
     } catch { toast.error('Failed to load'); }
     finally { setLoading(false); }
   }

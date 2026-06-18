@@ -34,6 +34,12 @@ export default function Dashboard() {
     color: v >= 70 ? 'var(--green)' : v >= 50 ? 'var(--amber)' : 'var(--red)'
   }));
 
+  const classPerformance = Object.entries(overview?.class_progress || {}).map(([k, v]) => ({
+    name: k,
+    score: v,
+    color: v >= 70 ? 'var(--green)' : v >= 50 ? 'var(--amber)' : 'var(--red)'
+  })).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
   return (
     <div className="fade-in">
       <div className="section-header mb-20">
@@ -105,9 +111,33 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* ── CLASS PERFORMANCE GRAPH ── */}
+        <div className="card">
+          <div className="section-title mb-16">Average Performance per Class</div>
+          <div style={{ height: 280, width: '100%' }}>
+            {classPerformance.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={classPerformance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 600 }} />
+                  <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                  <Tooltip 
+                    cursor={{ fill: 'var(--g1)' }}
+                    contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: 12 }}
+                  />
+                  <Bar dataKey="score" radius={[4, 4, 0, 0]} barSize={30}>
+                    {classPerformance.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : <div className="empty-state"><p>No class data yet</p></div>}
+          </div>
+        </div>
+
         {/* ── OPTION 2: GROUP STATUS ── */}
         <div className="card">
-          <div className="section-title mb-16">Grade Performance Status</div>
+          <div className="section-title mb-16">Grade Level Summary</div>
           <div style={{ maxHeight: 280, overflowY: 'auto', paddingRight: 8 }}>
             {groupPerformance.length > 0 ? (
               groupPerformance.map(gp => (
