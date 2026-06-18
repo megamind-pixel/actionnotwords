@@ -52,7 +52,7 @@ function ResultForm({ initial, students, onSave, onClose }) {
 
   return (
     <form onSubmit={submit}>
-      <div className="form-row">
+      <div className="grid-2 mb-16">
         <div className="form-group"><label className="form-label">Student *</label>
           <select className="form-select" value={form.student_id} onChange={e=>set('student_id',e.target.value)} required>
             <option value="">Select student</option>
@@ -69,7 +69,7 @@ function ResultForm({ initial, students, onSave, onClose }) {
           </select>
         </div>
       </div>
-      <div className="form-row">
+      <div className="grid-2 mb-16">
         <div className="form-group"><label className="form-label">Term *</label>
           <select className="form-select" value={form.term} onChange={e=>set('term',e.target.value)}>
             <option value="1">Term 1</option><option value="2">Term 2</option><option value="3">Term 3</option>
@@ -95,8 +95,8 @@ function ResultForm({ initial, students, onSave, onClose }) {
       </div>
 
       {student && subs.length > 0 && (
-        <div style={{marginBottom:18, border:'1px solid var(--g1)', borderRadius:8, padding:12, background:'var(--fcfcfc)'}}>
-          <div className="flex-between mb-12">
+        <div style={{marginBottom:18, border:'1px solid var(--border-subtle)', borderRadius:'var(--radius-md)', padding:16, background:'var(--bg-app)'}}>
+          <div className="flex-between mb-16">
             <div className="form-label" style={{margin:0, fontWeight:700}}>
               Marks — {student.first_name} {student.last_name}
             </div>
@@ -104,12 +104,12 @@ function ResultForm({ initial, students, onSave, onClose }) {
               {curriculum} Curriculum · {LEVELS[student.level]?.label}
             </span>
           </div>
-          <div className="form-row-3">
+          <div className="grid-3 gap-16">
             {subs.map(sub => {
               const val = form.subjects[sub];
               const grade = getGrade(val, student.level);
               return (
-                <div key={sub} className="form-group" style={{marginBottom:10}}>
+                <div key={sub} className="form-group" style={{marginBottom: 0}}>
                   <div className="flex-between" style={{marginBottom:4}}>
                     <label className="form-label" style={{fontSize:11, margin:0, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} title={sub}>{sub}</label>
                     {val && <span className={`badge badge-${gradeColor(grade)}`} style={{fontSize:9, padding:'1px 4px'}}>{grade}</span>}
@@ -123,7 +123,7 @@ function ResultForm({ initial, students, onSave, onClose }) {
         </div>
       )}
 
-      <div className="form-row">
+      <div className="grid-2 mb-16">
         <div className="form-group"><label className="form-label">Position in Class</label>
           <input className="form-input" type="number" value={form.position} onChange={e=>set('position',e.target.value)} placeholder="e.g. 5"/>
         </div>
