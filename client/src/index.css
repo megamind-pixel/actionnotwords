@@ -3,25 +3,25 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root {
-  /* Colors - Modern SaaS Palette */
-  --brand-primary: #0F172A;
-  --brand-accent: #3B82F6;
-  --brand-accent-hover: #2563EB;
-  --brand-danger: #EF4444;
+  /* Colors - Red, Black, White Palette */
+  --brand-primary: #050505;
+  --brand-accent: #C0292A;
+  --brand-accent-hover: #A01C1D;
+  --brand-danger: #C0292A;
   --brand-success: #10B981;
   --brand-warning: #F59E0B;
   
   --bg-app: #F8FAFC;
-  --bg-sidebar: #0F172A;
+  --bg-sidebar: #050505;
   --bg-card: #FFFFFF;
   
-  --text-primary: #0F172A;
+  --text-primary: #050505;
   --text-secondary: #475569;
   --text-muted: #94A3B8;
-  --text-on-dark: #F8FAFC;
+  --text-on-dark: #FFFFFF;
   
   --border-subtle: #E2E8F0;
-  --border-focus: #3B82F6;
+  --border-focus: #C0292A;
   
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
