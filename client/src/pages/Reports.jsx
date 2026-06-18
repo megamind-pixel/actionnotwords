@@ -87,7 +87,7 @@ export default function Reports() {
     Object.entries(overview?.by_level || {}).map(([k, v]) => ({
       name: k.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase()), 
       value: v,
-      fill: k === 'secondary' ? 'var(--red)' : k === 'junior_secondary' ? 'var(--amber)' : 'var(--blue)'
+      fill: k === 'secondary' ? 'var(--brand-danger)' : k === 'junior_secondary' ? 'var(--brand-warning)' : 'var(--brand-accent)'
     })), [overview]);
 
   const genderData = useMemo(() => 
@@ -243,18 +243,18 @@ export default function Reports() {
                 <AreaChart data={historyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--red)" stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor="var(--red)" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="var(--brand-accent)" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="var(--brand-accent)" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--g1)" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-subtle)" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 600 }} />
                   <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
                   <Tooltip 
-                    contentStyle={{ borderRadius: 12, border: 'none', boxShadow: 'var(--sh2)', fontSize: 12 }}
-                    cursor={{ stroke: 'var(--red)', strokeWidth: 1 }}
+                    contentStyle={{ borderRadius: 12, border: 'none', boxShadow: 'var(--shadow-lg)', fontSize: 12 }}
+                    cursor={{ stroke: 'var(--brand-accent)', strokeWidth: 1 }}
                   />
-                  <Area type="monotone" dataKey="score" stroke="var(--red)" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" dot={{ r: 4, fill: 'var(--red)', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                  <Area type="monotone" dataKey="score" stroke="var(--brand-accent)" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" dot={{ r: 4, fill: 'var(--brand-accent)', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : <div className="empty-state">No trend data available</div>}
@@ -266,11 +266,11 @@ export default function Reports() {
             {subjectRadarData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="80%" data={subjectRadarData}>
-                  <PolarGrid stroke="var(--g2)" />
+                  <PolarGrid stroke="var(--border-subtle)" />
                   <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fontWeight: 700 }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar name="Mean Score" dataKey="A" stroke="var(--blue)" fill="var(--blue)" fillOpacity={0.4} />
-                  <Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: 'var(--sh2)', fontSize: 12 }} />
+                  <Radar name="Mean Score" dataKey="A" stroke="var(--brand-accent)" fill="var(--brand-accent)" fillOpacity={0.4} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: 'var(--shadow-lg)', fontSize: 12 }} />
                 </RadarChart>
               </ResponsiveContainer>
             ) : <div className="empty-state">No subject data available</div>}
@@ -283,7 +283,7 @@ export default function Reports() {
         <PremiumCard title="Program ROI" subtitle="Value Added metric" icon={Award}>
           <div style={{ textAlign: 'center', padding: '24px 0' }}>
             <div className="flex-center" style={{ justifyContent: 'center', gap: 10 }}>
-              <div style={{ fontSize: 42, fontWeight: 900, color: Number(overview?.avg_growth) >= 0 ? 'var(--green)' : 'var(--red)', letterSpacing: '-2px' }}>
+              <div style={{ fontSize: 42, fontWeight: 900, color: Number(overview?.avg_growth) >= 0 ? 'var(--brand-success)' : 'var(--brand-danger)', letterSpacing: '-2px' }}>
                 {Number(overview?.avg_growth) > 0 ? '+' : ''}{overview?.avg_growth}%
               </div>
               <div className={`badge ${Number(overview?.avg_growth) >= 0 ? 'badge-green' : 'badge-red'}`} style={{ padding: '4px 10px' }}>
@@ -293,8 +293,8 @@ export default function Reports() {
             <div className="text-muted text-sm mt-8" style={{ maxWidth: 220, margin: '0 auto' }}>
               Average movement in student performance since program enrollment.
             </div>
-            <div className="progress mt-24" style={{ height: 8, background: 'var(--g1)' }}>
-              <div className="progress-fill green" style={{ width: `${Math.min(100, Math.max(0, 50 + Number(overview?.avg_growth) * 2))}%` }} />
+            <div className="progress mt-24" style={{ height: 8, background: 'var(--bg-app)' }}>
+              <div className="progress-fill green" style={{ width: `${Math.min(100, Math.max(0, 50 + Number(overview?.avg_growth) * 2))}%`, background: 'var(--brand-success)' }} />
             </div>
           </div>
         </PremiumCard>
@@ -315,10 +315,10 @@ export default function Reports() {
               <BarChart data={genderData} barSize={40}>
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700 }} />
                 <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-                <Tooltip cursor={{ fill: 'var(--g1)' }} contentStyle={{ borderRadius: 12, border: 'none', boxShadow: 'var(--sh2)', fontSize: 12 }} />
+                <Tooltip cursor={{ fill: '#F8FAFC' }} contentStyle={{ borderRadius: 12, border: 'none', boxShadow: 'var(--shadow-lg)', fontSize: 12 }} />
                 <Bar dataKey="score" radius={[8, 8, 0, 0]}>
                   {genderData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.name === 'Male' ? 'var(--blue)' : 'var(--red)'} />
+                    <Cell key={`cell-${index}`} fill={entry.name === 'Male' ? 'var(--brand-accent)' : 'var(--brand-warning)'} />
                   ))}
                 </Bar>
               </BarChart>
