@@ -15,6 +15,21 @@ router.get('/me', requireAuth, async (req, res) => {
   res.json(req.admin || null);
 });
 
+// Request access (public)
+router.post('/request', async (req, res) => {
+  const { email, name } = req.body;
+  if (!email || !name) return res.status(400).json({ error: 'Email and name required' });
+  
+  const { data: existing } = await supabaseAdmin.from('admins').select('id').eq('email', email).single();
+  if (existing) return res.status(400).json({ error: 'Request already submitted or user exists' });
+
+  const { data, error } = await supabaseAdmin
+    .from('admins').insert([{ email, name, role: 'viewer', status: 'pending' }]).select().single();
+  
+  if (error) return res.status(500).json({ error: error.message });
+  res.status(201).json(data);
+});
+
 // Invite: create pending admin record, send magic link via Supabase
 router.post('/invite', requireSuperAdmin, async (req, res) => {
   const { email, name, role = 'admin' } = req.body;
@@ -49,6 +64,18 @@ router.delete('/:id', requireSuperAdmin, async (req, res) => {
   const { error } = await supabaseAdmin.from('admins').delete().eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
+});
+
+router.post('/:id/approve', requireSuperAdmin, async (req, res) => {
+  const { data: admin, error: fetchErr } = await supabaseAdmin.from('admins').select('*').eq('id', req.params.id).single();
+  if (fetchErr || !admin) return res.status(404).json({ error: 'Admin not found' });
+  
+  const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(admin.email, {
+    redirectTo: `${process.env.FRONTEND_ORIGIN}/auth/callback`
+  });
+  
+  if (inviteError) return res.status(500).json({ error: inviteError.message });
+  res.json({ success: true, invite_sent: true });
 });
 
 // Called after Google OAuth — link user_id to admin record

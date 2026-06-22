@@ -37,6 +37,16 @@ export default function Admins() {
     } catch (err) { toast.error(err.message); }
   }
 
+  async function approve(id, name) {
+    try {
+      await api.approveAdmin(id);
+      setAdmins(a => a.map(x => x.id === id ? { ...x, status: 'active' } : x));
+      toast.success(`Approved ${name}. Invite email sent.`);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }
+
   if (loading) return <div className="loading-page"><div className="spinner"/></div>;
 
   return (
@@ -90,6 +100,9 @@ export default function Admins() {
               <span className={`badge ${a.status==='active'?'badge-green':a.status==='pending'?'badge-amber':'badge-gray'}`}>
                 {a.status||'pending'}
               </span>
+              {a.status === 'pending' && (
+                <button className="btn btn-secondary btn-sm" onClick={() => approve(a.id, a.name)}>Approve</button>
+              )}
               <button className="btn btn-danger btn-sm" onClick={()=>setDelId(a.id)}><Trash2 size={12}/></button>
             </div>
           ))
