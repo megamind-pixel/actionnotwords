@@ -67,20 +67,24 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-particles" id="particles" />
-      <div className="login-map">
-        {settings?.logo_url ? (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeSlideUp .6s ease .3s both' }}>
-            <img src={settings.logo_url} alt="Org Logo" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-          </div>
-        ) : (
-          <AfricaMapSVG />
-        )}
+      <div className="login-left">
+        <div className="login-map">
+          {settings?.logo_url ? (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeSlideUp .6s ease .3s both' }}>
+              <img src={settings.logo_url} alt="Org Logo" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+            </div>
+          ) : (
+            <AfricaMapSVG />
+          )}
+        </div>
+        <div className="login-brand">
+          {settings?.org_name ? settings.org_name.toUpperCase() : 'ACTIONS NOT WORDS'}
+        </div>
+        <div className="login-tagline">Student Performance Tracker</div>
       </div>
-      <div className="login-brand">
-        {settings?.org_name ? settings.org_name.toUpperCase() : 'ACTIONS NOT WORDS'}
-      </div>
-      <div className="login-tagline">Student Performance Tracker</div>
-      <div className="login-card">
+      
+      <div className="login-right">
+        <div className="login-card">
         {isRequesting ? (
           <>
             <div style={{fontSize:'17px',fontWeight:700,color:'#fff',marginBottom:'3px'}}>Request Access</div>
@@ -140,7 +144,9 @@ export default function Login() {
               Need access? <button type="button" onClick={() => setIsRequesting(true)} style={{color: '#fff', textDecoration: 'underline'}}>Request Access</button>
             </div>
           </>
+          </>
         )}
+        </div>
       </div>
     </div>
   );
