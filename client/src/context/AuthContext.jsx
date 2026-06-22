@@ -7,8 +7,21 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
+  const [unauthorized, setUnauthorized] = useState(false);
   const [settings, setSettings] = useState({ org_name: 'Actions Not Words', logo_url: '' });
   const [loading, setLoading] = useState(true);
+
+  async function fetchAdmin() {
+    try {
+      const me = await api.getMe();
+      setAdmin(me);
+      setUnauthorized(false);
+    } catch {
+      setUnauthorized(true);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     api.getSettings().then(setSettings).catch(() => {});
