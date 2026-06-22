@@ -30,7 +30,7 @@ function SchoolForm({ initial, onSave, onClose }) {
       <div className="form-group"><label className="form-label">School Name *</label>
         <input className="form-input" value={form.name} onChange={e=>set('name',e.target.value)} placeholder="Nairobi Primary School" required />
       </div>
-      <div className="form-row">
+      <div className="grid-2 mb-16">
         <div className="form-group"><label className="form-label">County / Location *</label>
           <input className="form-input" value={form.location} onChange={e=>set('location',e.target.value)} placeholder="Nairobi" required />
         </div>
@@ -40,7 +40,7 @@ function SchoolForm({ initial, onSave, onClose }) {
           </select>
         </div>
       </div>
-      <div className="form-row">
+      <div className="grid-2 mb-16">
         <div className="form-group"><label className="form-label">Curriculum</label>
           <select className="form-select" value={form.curriculum} onChange={e=>set('curriculum',e.target.value)}>
             {Object.entries(CURRICULA).map(([v,l])=><option key={v} value={v}>{l}</option>)}

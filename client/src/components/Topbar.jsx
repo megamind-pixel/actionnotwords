@@ -7,7 +7,7 @@ export function Topbar({ title, onMenuClick, searchValue, onSearchChange }) {
   return (
     <div className="topbar no-print">
       <div className="flex-center gap-16">
-        <button className="menu-btn" onClick={onMenuClick} style={{ display: 'none' }}>
+        <button className="menu-btn" onClick={onMenuClick}>
           <Menu size={20} />
         </button>
         

@@ -109,7 +109,7 @@ export default function Settings() {
             <div className="form-group"><label className="form-label">Organisation Name</label>
               <input className="form-input" value={settings.org_name} onChange={e=>setSettings({...settings, org_name: e.target.value})} placeholder="Actions Not Words" readOnly={admin?.role !== 'super_admin'} />
             </div>
-            <div className="form-row">
+            <div className="grid-2 mb-16">
               <div className="form-group"><label className="form-label">Current Academic Year</label>
                 <select className="form-select" value={settings.current_year} onChange={e=>setSettings({...settings, current_year: e.target.value})} disabled={admin?.role !== 'super_admin'}>
                   {['2022','2023','2024','2025','2026'].map(y=><option key={y}>{y}</option>)}

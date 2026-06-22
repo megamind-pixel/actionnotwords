@@ -79,6 +79,7 @@ button { cursor: pointer; border: none; background: none; }
 @media (max-width: 1024px) {
   .main { margin-left: 0 !important; }
   .page-content { padding: 20px; }
+  .menu-btn { display: flex !important; }
 }
 
 /* ── SIDEBAR ── */
@@ -97,6 +98,26 @@ button { cursor: pointer; border: none; background: none; }
 }
 
 .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+
+.mob-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 90;
+}
+.mob-overlay.show { display: block; }
+
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); width: var(--sidebar-width) !important; }
+  .sidebar.open .sb-logo-text,
+  .sidebar.open .sb-user-info,
+  .sidebar.open .sb-section { opacity: 1; width: auto; pointer-events: auto; }
+  .sidebar.open .nav-link { justify-content: flex-start; padding: 10px 12px; }
+  .sidebar.open .nav-link span { display: block; }
+  .sidebar.open .collapse-btn { display: none; }
+}
 
 .sb-logo {
   height: var(--topbar-height);
@@ -275,6 +296,20 @@ button { cursor: pointer; border: none; background: none; }
 .tb-action-btn:hover {
   background: var(--bg-app);
   color: var(--brand-accent);
+}
+
+.menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 4px;
+}
+@media (max-width: 1024px) {
+  .menu-btn { display: flex; }
 }
 
 /* ── CARDS ── */
