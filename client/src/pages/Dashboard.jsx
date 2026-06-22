@@ -38,6 +38,7 @@ export default function Dashboard() {
   const classPerformance = Object.entries(overview?.class_progress || {}).map(([k, v]) => ({
     name: k,
     score: v,
+    count: overview?.class_counts?.[k] || 0,
     color: v >= 70 ? 'var(--green)' : v >= 50 ? 'var(--amber)' : 'var(--red)'
   })).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
 
@@ -155,6 +156,61 @@ export default function Dashboard() {
             ) : <div className="empty-state">No data available</div>}
           </div>
         </div>
+      </div>
+
+      {/* ── CLASS PERFORMANCE TABLE ── */}
+      <div className="card card-p0 mb-32">
+        <div className="flex-between p-20">
+          <div>
+            <div className="section-title">Class Performance</div>
+            <div className="section-sub">Mean score per class / grade</div>
+          </div>
+        </div>
+        {classPerformance.length === 0 ? (
+          <div className="empty-state" style={{ padding: 32 }}>
+            No class data yet. Assign a <strong>Class Name</strong> to students to see this breakdown.
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Class / Grade</th>
+                  <th>Students</th>
+                  <th>Mean Score</th>
+                  <th>Status</th>
+                  <th style={{ width: 160 }}>Performance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {classPerformance.map(cp => (
+                  <tr key={cp.name}>
+                    <td><div className="text-bold" style={{ fontSize: 13 }}>{cp.name}</div></td>
+                    <td className="text-sm text-muted">{cp.count} student{cp.count !== 1 ? 's' : ''}</td>
+                    <td>
+                      <strong style={{ fontSize: 16, color: cp.color }}>{cp.score}%</strong>
+                    </td>
+                    <td>
+                      <span className={`badge ${
+                        cp.score >= 70 ? 'badge-green' : cp.score >= 50 ? 'badge-amber' : 'badge-red'
+                      }`}>
+                        {cp.score >= 70 ? 'Excellent' : cp.score >= 50 ? 'Steady' : 'At Risk'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex-center gap-10">
+                        <div className="progress" style={{ flex: 1, height: 8, background: '#E2E8F0', borderRadius: 4 }}>
+                          <div style={{ width: `${cp.score}%`, height: '100%', backgroundColor: cp.color, borderRadius: 4, transition: 'width 0.6s ease' }} />
+                        </div>
+                        <span className="text-xs text-muted" style={{ minWidth: 30 }}>{cp.score}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <div className="card">

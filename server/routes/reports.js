@@ -7,12 +7,20 @@ const router = Router();
 // Overview stats
 router.get('/overview', requireAdmin, async (req, res) => {
   const [students, schools, results] = await Promise.all([
-    supabaseAdmin.from('students').select('id, level, school_id, gender'),
+    supabaseAdmin.from('students').select('id, level, school_id, gender, class_name'),
     supabaseAdmin.from('schools').select('id, name, location'),
-    supabaseAdmin.from('results').select('student_id, year, term, subjects, student:students(level, gender)')
+    supabaseAdmin.from('results').select('student_id, year, term, subjects, mean_score, student:students(level, gender)')
   ]);
 
-  const calcMean = (subjects) => {
+  // Prefer mean_score column; fall back to computing from subjects JSONB
+  const calcMean = (r) => {
+    if (r.mean_score != null) return Math.round(Number(r.mean_score));
+    if (!r.subjects) return null;
+    const vals = Object.values(r.subjects).map(Number).filter(v => !isNaN(v) && v >= 0);
+    return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+  };
+  // For school report route (subjects only object)
+  const calcMeanFromSubjects = (subjects) => {
     if (!subjects) return null;
     const vals = Object.values(subjects).map(Number).filter(v => !isNaN(v) && v >= 0);
     return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
@@ -28,7 +36,7 @@ router.get('/overview', requireAdmin, async (req, res) => {
     }
   });
 
-  const avgs = Object.values(latestByStudent).map(r => calcMean(r.subjects)).filter(x => x !== null);
+  const avgs = Object.values(latestByStudent).map(r => calcMean(r)).filter(x => x !== null);
   const mean = avgs.length ? Math.round(avgs.reduce((a, b) => a + b, 0) / avgs.length) : null;
   const atRisk = avgs.filter(a => a < 50).length;
   const onTrack = avgs.filter(a => a >= 70).length;
@@ -44,7 +52,7 @@ router.get('/overview', requireAdmin, async (req, res) => {
     byLevel[s.level] = (byLevel[s.level] || 0) + 1; 
     const lr = latestByStudent[s.id];
     if (lr) {
-      const m = calcMean(lr.subjects);
+      const m = calcMean(lr);
       if (m !== null) {
         levelMeans[s.level] = (levelMeans[s.level] || 0) + m;
         levelCounts[s.level] = (levelCounts[s.level] || 0) + 1;
@@ -72,7 +80,7 @@ router.get('/overview', requireAdmin, async (req, res) => {
   (students.data || []).forEach(s => {
     const lr = latestByStudent[s.id];
     if (lr && s.gender && genderStats[s.gender]) {
-      const m = calcMean(lr.subjects);
+      const m = calcMean(lr);
       if (m !== null) {
         genderStats[s.gender].sum += m;
         genderStats[s.gender].count += 1;
@@ -90,7 +98,7 @@ router.get('/overview', requireAdmin, async (req, res) => {
       .sort((a, b) => a.year - b.year || a.term - b.term);
     if (sResults.length < 2) return { id: s.id, trend: null, diff: 0 };
     
-    const avgsArr = sResults.map(r => calcMean(r.subjects)).filter(x => x !== null);
+    const avgsArr = sResults.map(r => calcMean(r)).filter(x => x !== null);
     if (avgsArr.length < 2) return { id: s.id, trend: null, diff: 0 };
     
     const diff = avgsArr[avgsArr.length - 1] - avgsArr[avgsArr.length - 2];
@@ -130,6 +138,14 @@ router.get('/overview', requireAdmin, async (req, res) => {
     subjectMeans[s] = Math.round(subjectStats[s].sum / subjectStats[s].count);
   });
 
+  // ── Class student counts (all students, not just those with results) ──
+  const classStudentCounts = {};
+  (students.data || []).forEach(s => {
+    if (s.class_name) {
+      classStudentCounts[s.class_name] = (classStudentCounts[s.class_name] || 0) + 1;
+    }
+  });
+
   // ── Grade Distribution (Latest Results) ──
   const getGrade = (mark, level) => {
     const m = Number(mark);
@@ -144,7 +160,7 @@ router.get('/overview', requireAdmin, async (req, res) => {
 
   const gradeDist = { A:0, 'A-':0, 'B+':0, B:0, 'B-':0, 'C+':0, C:0, 'C-':0, 'D+':0, D:0, 'D-':0, E:0, EE:0, ME:0, AE:0, BE:0 };
   Object.values(latestByStudent).forEach(r => {
-    const m = calcMean(r.subjects);
+    const m = calcMean(r);
     if (m !== null) {
       const g = getGrade(m, r.student?.level);
       gradeDist[g] = (gradeDist[g] || 0) + 1;
@@ -155,7 +171,7 @@ router.get('/overview', requireAdmin, async (req, res) => {
   const termHistory = {};
   (results.data || []).forEach(r => {
     const key = `${r.year} T${r.term}`;
-    const m = calcMean(r.subjects);
+    const m = calcMean(r);
     if (m !== null) {
       if (!termHistory[key]) termHistory[key] = { sum: 0, count: 0 };
       termHistory[key].sum += m;
@@ -178,6 +194,7 @@ router.get('/overview', requireAdmin, async (req, res) => {
     by_level: byLevel,
     level_progress: levelProgress,
     class_progress: classProgress,
+    class_counts: classStudentCounts,
     gender_means: genderMeans,
     subject_means: subjectMeans,
     grade_distribution: gradeDist,
@@ -194,11 +211,12 @@ router.get('/overview', requireAdmin, async (req, res) => {
 router.get('/schools', requireAdmin, async (req, res) => {
   const { data: schools } = await supabaseAdmin.from('schools').select('id, name, location');
   const { data: students } = await supabaseAdmin.from('students').select('id, school_id, level');
-  const { data: results } = await supabaseAdmin.from('results').select('student_id, year, term, subjects');
+  const { data: results } = await supabaseAdmin.from('results').select('student_id, year, term, subjects, mean_score');
 
-  const calcMean = (subjects) => {
-    if (!subjects) return null;
-    const vals = Object.values(subjects).map(Number).filter(v => !isNaN(v) && v >= 0);
+  const calcMean = (r) => {
+    if (r.mean_score != null) return Math.round(Number(r.mean_score));
+    if (!r.subjects) return null;
+    const vals = Object.values(r.subjects).map(Number).filter(v => !isNaN(v) && v >= 0);
     return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
   };
 
@@ -214,7 +232,7 @@ router.get('/schools', requireAdmin, async (req, res) => {
     const schStudents = (students || []).filter(s => s.school_id === sch.id);
     const avgs = schStudents.map(s => {
       const lr = latestByStudent[s.id];
-      return lr ? calcMean(lr.subjects) : null;
+      return lr ? calcMean(lr) : null;
     }).filter(x => x !== null);
     const mean = avgs.length ? Math.round(avgs.reduce((a, b) => a + b, 0) / avgs.length) : null;
     return {

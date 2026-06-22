@@ -15,6 +15,21 @@ async function req(method, path, body) {
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
 }
+
+/**
+ * Upload a score proof image to Supabase Storage.
+ * Returns the public/signed URL of the uploaded file.
+ */
+export async function uploadScoreProof(file) {
+  const ext = file.name.split('.').pop();
+  const path = `proofs/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage.from('score-proofs').upload(path, file, { upsert: false });
+  if (error) throw new Error(error.message);
+  // Get a signed URL valid for 1 year (for viewing)
+  const { data: signed } = await supabase.storage.from('score-proofs').createSignedUrl(path, 60 * 60 * 24 * 365);
+  return signed?.signedUrl || path;
+}
+
 export const api = {
   getSchools: () => req('GET', '/schools'),
   createSchool: (b) => req('POST', '/schools', b),
