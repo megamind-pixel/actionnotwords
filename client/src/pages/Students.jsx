@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Plus, Eye, Pencil, Trash2, Users, Download, 
   UserCircle, Upload, Loader2, Search, Filter,
