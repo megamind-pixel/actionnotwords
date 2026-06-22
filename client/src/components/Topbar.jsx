@@ -1,4 +1,4 @@
-import { Menu, Bell, Search, ChevronRight, Calendar, Layers, Moon, Sun, User } from 'lucide-react';
+import { Menu, Bell, Search, ChevronRight, Calendar, Layers, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function Topbar({ title, onMenuClick, searchValue, onSearchChange }) {
@@ -6,12 +6,14 @@ export function Topbar({ title, onMenuClick, searchValue, onSearchChange }) {
   
   return (
     <div className="topbar no-print">
-      <div className="flex-center gap-16">
-        <button className="menu-btn" onClick={onMenuClick}>
-          <Menu size={20} />
+      {/* Left side: hamburger + page title */}
+      <div className="flex-center gap-12">
+        <button className="menu-btn" onClick={onMenuClick} aria-label="Open menu">
+          <Menu size={22} />
         </button>
         
         <div>
+          {/* Breadcrumb – hidden on mobile via CSS */}
           <div className="breadcrumb">
             <span>ANW</span>
             <ChevronRight size={12} />
@@ -25,7 +27,9 @@ export function Topbar({ title, onMenuClick, searchValue, onSearchChange }) {
         </div>
       </div>
 
+      {/* Right side */}
       <div className="tb-right">
+        {/* Search – hidden on small mobile via CSS */}
         <div className="search-container">
           <Search size={16} className="search-icon" />
           <input
@@ -36,21 +40,20 @@ export function Topbar({ title, onMenuClick, searchValue, onSearchChange }) {
           />
         </div>
 
-        <div className="flex-center gap-8" style={{ borderLeft: '1px solid var(--border-subtle)', paddingLeft: 16 }}>
-          <div className="flex-center gap-4 text-xs font-semibold" style={{ color: 'var(--text-secondary)', background: 'var(--bg-app)', padding: '4px 8px', borderRadius: 'var(--radius-sm)' }}>
-            <Calendar size={14} />
+        {/* Year / Term badges – hidden on small mobile */}
+        <div className="tb-meta-badges">
+          <div className="tb-badge">
+            <Calendar size={13} />
             <span>{settings.current_year}</span>
           </div>
-          <div className="flex-center gap-4 text-xs font-semibold" style={{ color: 'var(--text-secondary)', background: 'var(--bg-app)', padding: '4px 8px', borderRadius: 'var(--radius-sm)' }}>
-            <Layers size={14} />
+          <div className="tb-badge">
+            <Layers size={13} />
             <span>Term {settings.current_term}</span>
           </div>
         </div>
 
+        {/* Action buttons */}
         <div className="flex-center gap-4">
-          <button className="tb-action-btn" title="Toggle Theme">
-            <Sun size={18} />
-          </button>
           <button className="tb-action-btn" title="Notifications">
             <Bell size={18} />
           </button>

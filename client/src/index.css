@@ -237,6 +237,9 @@ button { cursor: pointer; border: none; background: none; }
   top: 0;
   z-index: 50;
 }
+@media (max-width: 768px) {
+  .topbar { padding: 0 16px; }
+}
 
 .breadcrumb {
   display: flex;
@@ -296,6 +299,27 @@ button { cursor: pointer; border: none; background: none; }
 .tb-action-btn:hover {
   background: var(--bg-app);
   color: var(--brand-accent);
+}
+
+/* Year / Term badges in topbar */
+.tb-meta-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-left: 1px solid var(--border-subtle);
+  padding-left: 16px;
+}
+
+.tb-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-app);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
 }
 
 .menu-btn {
@@ -383,6 +407,23 @@ button { cursor: pointer; border: none; background: none; }
   border-color: var(--text-muted);
 }
 
+.btn-danger {
+  background: var(--brand-danger);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #a01c1d;
+  transform: translateY(-1px);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+  gap: 4px;
+}
+
+
 .badge {
   padding: 4px 10px;
   border-radius: var(--radius-full);
@@ -407,8 +448,22 @@ button { cursor: pointer; border: none; background: none; }
 
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: var(--brand-accent);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(192, 41, 42, 0.12);
+  outline: none;
 }
+
+.form-group { margin-bottom: 16px; }
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 
 /* ── TABLES ── */
 .table-container {
@@ -455,13 +510,70 @@ tr:hover td { background: #FAFAFA; }
 
 .flex-between { display: flex; align-items: center; justify-content: space-between; }
 .flex-center { display: flex; align-items: center; justify-content: center; }
+.gap-4 { gap: 4px; }
+.gap-6 { gap: 6px; }
 .gap-8 { gap: 8px; }
 .gap-12 { gap: 12px; }
 .gap-16 { gap: 16px; }
 
+.mb-8  { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
 .mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
 .mb-24 { margin-bottom: 24px; }
 .mb-32 { margin-bottom: 32px; }
+
+.text-sm  { font-size: 13px; }
+.text-xs  { font-size: 11px; }
+.text-muted { color: var(--text-muted); }
+.font-semibold { font-weight: 600; }
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 12px 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.empty-state svg { opacity: 0.35; width: 48px; height: 48px; }
+.empty-state p { font-size: 14px; }
+
+/* ── LOADING ── */
+.loading-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-subtle);
+  border-top-color: var(--brand-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -472,7 +584,72 @@ tr:hover td { background: #FAFAFA; }
 }
 
 @media (max-width: 640px) {
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal {
+  background: var(--bg-card);
+  width: 100%;
+  max-width: 500px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-lg {
+  max-width: 800px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  background: var(--bg-app);
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ── CUSTOM SCROLLBAR ── */
@@ -538,9 +715,32 @@ tr:hover td { background: #FAFAFA; }
 }
 
 @media (max-width: 900px) {
-  .login-page { flex-direction: column; }
-  .login-right { width: 100%; flex: 1; border-left: none; border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 20px; }
-  .login-left { flex: none; padding: 60px 20px; }
+  .login-page { flex-direction: column; overflow-y: auto; min-height: 100vh; }
+  .login-right {
+    width: 100%;
+    flex: none;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 32px 20px 48px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .login-left {
+    flex: none;
+    padding: 36px 20px 28px;
+    min-height: auto;
+  }
+  .login-brand { font-size: 30px; letter-spacing: 2px; }
+  .login-map { width: 140px; height: 154px; margin-bottom: 12px; }
+  .login-card { max-width: 100%; padding: 28px 20px; }
+}
+
+@media (max-width: 480px) {
+  .login-card { padding: 24px 16px; border-radius: 14px; }
+  .login-input { padding: 12px 14px; font-size: 15px; }
+  .login-submit { padding: 13px; font-size: 14px; }
+  .google-btn { padding: 11px; font-size: 13px; }
 }
 
 .login-particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
@@ -637,4 +837,64 @@ tr:hover td { background: #FAFAFA; }
 }
 .google-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; transform: translateY(-1px); }
 
+/* Register / Request Access button — prominent CTA */
+.login-register-btn {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid rgba(192, 41, 42, 0.6);
+  color: #ff9090;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 12px rgba(192, 41, 42, 0.15);
+}
+.login-register-btn:hover {
+  background: rgba(192, 41, 42, 0.18);
+  border-color: var(--brand-accent);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(192, 41, 42, 0.3);
+  transform: translateY(-1px);
+}
+
 .login-note { font-size: 12px; color: rgba(255, 255, 255, 0.3); text-align: center; margin-top: 24px; }
+
+/* ── MOBILE TOPBAR ── */
+@media (max-width: 768px) {
+  .search-container { display: none; }
+  .tb-meta-badges { display: none; }
+  .topbar { padding: 0 12px; }
+  .tb-title h1 { font-size: 16px; }
+  .breadcrumb { display: none; }
+  .tb-right { gap: 8px; }
+}
+
+/* ── MOBILE PAGE CONTENT ── */
+@media (max-width: 640px) {
+  .page-content { padding: 16px; }
+  .card { padding: 16px; }
+  /* Modal slides up from bottom on mobile */
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 92vh;
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 16px;
+    margin: 0;
+  }
+  .flex-between { flex-wrap: wrap; gap: 10px; }
+  .btn { padding: 9px 14px; font-size: 13px; }
+  .btn-sm { padding: 6px 10px; font-size: 11px; }
+  /* Schools / form grids collapse on mobile */
+  .grid-2 { grid-template-columns: 1fr; gap: 0; }
+  table { font-size: 12px; }
+  td, th { padding: 10px 8px; }
+}

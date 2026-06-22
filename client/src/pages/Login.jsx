@@ -140,9 +140,10 @@ export default function Login() {
               </svg>
               Continue with Google (Invited Admins)
             </button>
-            <div className="login-note" style={{marginTop: 16}}>
-              Need access? <button type="button" onClick={() => setIsRequesting(true)} style={{color: '#fff', textDecoration: 'underline'}}>Request Access</button>
-            </div>
+            <div className="login-divider" style={{margin: '20px 0 16px'}}>new here?</div>
+            <button type="button" className="login-register-btn" onClick={() => setIsRequesting(true)}>
+              ✦ Request Access / Register
+            </button>
           </>
         )}
         </div>
