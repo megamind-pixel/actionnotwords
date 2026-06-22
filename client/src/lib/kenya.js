@@ -73,7 +73,7 @@ export function gradeColor(grade) {
 export function studentTrend(results) {
   if (!results || results.length < 2) return null;
   const sorted = [...results].sort((a, b) => a.year - b.year || a.term - b.term);
-  const avgs = sorted.map(r => calcMean(r.subjects)).filter(x => x !== null);
+  const avgs = sorted.map(r => r.mean_score != null ? Number(r.mean_score) : calcMean(r.subjects)).filter(x => x !== null);
   if (avgs.length < 2) return null;
   const diff = avgs[avgs.length - 1] - avgs[avgs.length - 2];
   return diff > 3 ? 'up' : diff < -3 ? 'down' : 'stable';

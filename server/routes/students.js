@@ -7,7 +7,7 @@ const router = Router();
 router.get('/', requireAdmin, async (req, res) => {
   const { school_id, level } = req.query;
   let q = supabaseAdmin.from('students')
-    .select(`*, school:schools(id, name, location, type, curriculum), results(year, term, subjects)`)
+    .select(`*, school:schools(id, name, location, type, curriculum), results(id, year, term, mean_score, subjects, score_proof_url)`)
     .order('last_name');
   if (school_id) q = q.eq('school_id', school_id);
   if (level) q = q.eq('level', level);

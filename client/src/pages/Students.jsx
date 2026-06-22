@@ -165,9 +165,9 @@ function ProfileModal({ student, open, onClose, onEdit }) {
   const results = student.results || [];
   const sorted = [...results].sort((a,b)=>a.year-b.year||a.term-b.term);
   const latest = sorted[sorted.length-1];
-  const avg = latest ? calcMean(latest.subjects) : null;
+  const avg = latest ? (latest.mean_score != null ? Math.round(Number(latest.mean_score)) : calcMean(latest.subjects)) : null;
   const trend = studentTrend(results);
-  const ini = ((student.first_name[0]||'')+(student.last_name[0]||'')).toUpperCase();
+  const ini = ((student?.first_name?.[0]||'')+(student?.last_name?.[0]||'')).toUpperCase();
 
   const handlePrint = () => window.print();
 
@@ -404,7 +404,7 @@ export default function Students() {
                           <img src={s.photo_url} alt="" style={{width:36,height:36,objectFit:'cover',borderRadius:'var(--radius-md)'}} />
                         ) : (
                           <div className="avatar" style={{width:36,height:36,fontSize:11,borderRadius:'var(--radius-md)'}}>
-                            {(s.first_name[0]||'')+(s.last_name[0]||'')}
+                            {(s?.first_name?.[0]||'')+(s?.last_name?.[0]||'')}
                           </div>
                         )}
                         <div>
