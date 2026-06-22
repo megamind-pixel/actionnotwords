@@ -48,17 +48,21 @@ function AppRoutes() {
   );
 }
 
+import { ErrorBoundary } from './components/ErrorBoundary';
+
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-        <Toaster position="bottom-right" toastOptions={{
-          style: { borderRadius: 10, fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 500 },
-          success: { style: { background: '#0f7940', color: '#fff' } },
-          error: { style: { background: '#C0292A', color: '#fff' } },
-        }} />
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <AppRoutes />
+          <Toaster position="bottom-right" toastOptions={{
+            style: { borderRadius: 10, fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 500 },
+            success: { style: { background: '#0f7940', color: '#fff' } },
+            error: { style: { background: '#C0292A', color: '#fff' } },
+          }} />
+        </AuthProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
