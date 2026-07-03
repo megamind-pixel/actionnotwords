@@ -80,9 +80,24 @@ router.post('/:id/approve', requireSuperAdmin, async (req, res) => {
 
 // Called after Google OAuth — link user_id to admin record
 router.post('/link', requireAuth, async (req, res) => {
+  // Find the single pending/active admin record for this email
+  const { data: admin, error: fetchErr } = await supabaseAdmin
+    .from('admins')
+    .select('id, status')
+    .eq('email', req.user.email)
+    .single();
+
+  if (fetchErr || !admin) {
+    // No admin record found — user is not invited
+    return res.status(403).json({ error: 'No admin record found for this email. Contact your Super Admin.' });
+  }
+
+  // Only update by the specific ID to avoid touching other rows
   const { error } = await supabaseAdmin
-    .from('admins').update({ user_id: req.user.id, status: 'active' })
-    .eq('email', req.user.email);
+    .from('admins')
+    .update({ user_id: req.user.id, status: 'active' })
+    .eq('id', admin.id);
+
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
 });

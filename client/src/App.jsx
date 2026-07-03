@@ -10,6 +10,7 @@ import Results from './pages/Results';
 import Reports from './pages/Reports';
 import Admins from './pages/Admins';
 import Settings from './pages/Settings';
+import AuthCallback from './pages/AuthCallback';
 
 function ProtectedRoute({ children }) {
   const { user, loading, unauthorized, signOut } = useAuth();
@@ -34,7 +35,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/auth/callback" element={<Navigate to="/" replace />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="students" element={<Students />} />

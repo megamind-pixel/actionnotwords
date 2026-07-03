@@ -33,8 +33,11 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        if (event === 'SIGNED_IN') {
+        // Only link for Google/OAuth sign-ins, not email+password
+        if (event === 'SIGNED_IN' && session.user.app_metadata?.provider !== 'email') {
           try { await api.linkAdmin(); } catch {}
+          // Small delay to let the DB commit before we read it back
+          await new Promise(r => setTimeout(r, 300));
         }
         await fetchAdmin();
       } else {

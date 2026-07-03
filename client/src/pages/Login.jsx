@@ -45,7 +45,8 @@ export default function Login() {
   async function handleGoogle() {
     setLoading(true); setError('');
     try { await signInWithGoogle(); }
-    catch (err) { setError(err.message); setLoading(false); }
+    catch (err) { setError(err.message); }
+    finally { setLoading(false); }
   }
 
   async function handleRequestAccess(e) {
