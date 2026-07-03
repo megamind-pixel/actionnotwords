@@ -4,6 +4,7 @@ import { LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { AfricaMapSVG } from '../components/ANWLogo';
 import { api } from '../lib/api';
+import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 export default function Login() {
@@ -12,6 +13,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isRequesting, setIsRequesting] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [requestName, setRequestName] = useState('');
   const { signInWithEmail, signInWithGoogle, user, settings } = useAuth();
   const navigate = useNavigate();
@@ -47,6 +49,24 @@ export default function Login() {
     try { await signInWithGoogle(); }
     catch (err) { setError(err.message); }
     finally { setLoading(false); }
+  }
+
+  async function handleForgotPassword(e) {
+    e.preventDefault();
+    if (!email) { setError('Enter your email address above first.'); return; }
+    setLoading(true); setError('');
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      });
+      if (error) throw error;
+      toast.success('Password reset email sent! Check your inbox.');
+      setIsForgotPassword(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleRequestAccess(e) {
@@ -124,9 +144,34 @@ export default function Login() {
             <form onSubmit={handleEmail}>
               <label className="login-input-label">Email</label>
               <input className="login-input" type="email" placeholder="admin@actionsnotwords.org" value={email} onChange={e=>setEmail(e.target.value)} required />
-              <label className="login-input-label">Password</label>
-              <input className="login-input" type="password" placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} required />
-              <button className="login-submit" type="submit" disabled={loading}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <label className="login-input-label">Password</label>
+                <button
+                  type="button"
+                  onClick={() => { setIsForgotPassword(true); setError(''); }}
+                  style={{fontSize:'11px',color:'rgba(255,255,255,0.4)',background:'none',border:'none',cursor:'pointer',padding:0,marginBottom:'6px',textDecoration:'underline'}}
+                >
+                  Forgot password?
+                </button>
+              </div>
+              {isForgotPassword ? (
+                <div style={{background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.25)',borderRadius:'8px',padding:'12px',marginBottom:'12px'}}>
+                  <div style={{fontSize:'12px',color:'rgba(255,255,255,0.6)',marginBottom:'8px'}}>
+                    We'll send a reset link to <strong style={{color:'#fff'}}>{email || 'your email'}</strong>
+                  </div>
+                  <div style={{display:'flex',gap:'8px'}}>
+                    <button type="button" className="login-submit" style={{flex:1,fontSize:'12px',padding:'8px'}} onClick={handleForgotPassword} disabled={loading}>
+                      {loading ? 'Sending…' : 'Send Reset Link'}
+                    </button>
+                    <button type="button" onClick={() => setIsForgotPassword(false)} style={{fontSize:'12px',color:'rgba(255,255,255,0.4)',background:'none',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'8px',padding:'8px 12px',cursor:'pointer'}}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <input className="login-input" type="password" placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} required />
+              )}
+              <button className="login-submit" type="submit" disabled={loading || isForgotPassword}>
                 <LogIn size={15} />
                 {loading ? 'Signing in…' : 'Sign In'}
               </button>
