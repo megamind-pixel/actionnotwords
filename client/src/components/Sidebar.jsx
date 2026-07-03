@@ -69,15 +69,20 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
         <div className="sb-footer">
           <div className="sb-user">
             <div className="sb-avatar">{initials}</div>
-            <div className="sb-user-info">
-              <span className="sb-uname">{user?.email?.split('@')[0] || 'Admin'}</span>
-              <span className="sb-urole">Administrator</span>
-            </div>
             {!collapsed && (
-              <button onClick={signOut} className="logout-btn" style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.4)' }}>
-                <LogOut size={16} />
-              </button>
+              <div className="sb-user-info">
+                <span className="sb-uname">{user?.email?.split('@')[0] || 'Admin'}</span>
+                <span className="sb-urole">Administrator</span>
+              </div>
             )}
+            <button
+              onClick={signOut}
+              className="logout-btn"
+              title="Sign out"
+              style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.45)' }}
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </aside>

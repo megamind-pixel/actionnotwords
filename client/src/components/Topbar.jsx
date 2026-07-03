@@ -1,8 +1,8 @@
-import { Menu, Bell, Search, ChevronRight, Calendar, Layers, User } from 'lucide-react';
+import { Menu, Bell, Search, ChevronRight, Calendar, Layers, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function Topbar({ title, onMenuClick, searchValue, onSearchChange }) {
-  const { settings } = useAuth();
+  const { settings, signOut, user } = useAuth();
   
   return (
     <div className="topbar no-print">
@@ -57,8 +57,13 @@ export function Topbar({ title, onMenuClick, searchValue, onSearchChange }) {
           <button className="tb-action-btn" title="Notifications">
             <Bell size={18} />
           </button>
-          <button className="tb-action-btn" title="Profile">
-            <User size={18} />
+          <button
+            className="tb-action-btn"
+            title={`Sign out (${user?.email})`}
+            onClick={signOut}
+            style={{ color: 'rgba(255,255,255,0.55)' }}
+          >
+            <LogOut size={18} />
           </button>
         </div>
       </div>
