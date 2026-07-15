@@ -68,10 +68,10 @@ function parseRow(line, schools) {
     ? line.split('\t').map(p => p.trim()).filter(Boolean)
     : line.split(/\s{2,}/).map(p => p.trim()).filter(Boolean);
 
-  if (parts.length < 6) return { error: 'Need at least 6 columns (First Name, Last Name, Grade, DOB, ANW Ref, School)' };
+  if (parts.length < 5) return { error: 'Need at least 5 columns (First Name, Last Name, Grade, ANW Ref, School)' };
 
-  // columns: [0]=firstName [1]=lastName [2]=grade [3]=dob [4]=ref [5..]=school
-  const [firstName, lastName, gradeRaw, dobRaw, refNo, ...schoolParts] = parts;
+  // columns: [0]=firstName [1]=lastName [2]=grade [3]=ref [4..]=school
+  const [firstName, lastName, gradeRaw, refNo, ...schoolParts] = parts;
   const schoolName = schoolParts.join(' ');
 
   const errors = [];
@@ -82,22 +82,19 @@ function parseRow(line, schools) {
   const gradeInfo = resolveGrade(gradeRaw);
   if (!gradeInfo) errors.push(`Unknown grade "${gradeRaw}"`);
 
-  const dob = parseDOB(dobRaw);
-
   const school = matchSchool(schoolName, schools);
   if (!school) errors.push(`School not found: "${schoolName}"`);
 
   if (errors.length) return { errors };
 
   return {
-    first_name:       firstName,
-    last_name:        lastName,
-    level:            gradeInfo.level,
-    class_name:       gradeInfo.class_name,
-    dob,
-    ref_no:           refNo,
-    school_id:        school.id,
-    _schoolName:      school.name,
+    first_name:   firstName,
+    last_name:    lastName,
+    level:        gradeInfo.level,
+    class_name:   gradeInfo.class_name,
+    ref_no:       refNo,
+    school_id:    school.id,
+    _schoolName:  school.name,
   };
 }
 
@@ -155,8 +152,8 @@ export function BulkUploadModal({ open, onClose, schools, onDone }) {
           <>
             <div style={{ background: 'var(--bg-app)', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontSize: 13, color: 'var(--text-secondary)' }}>
               <strong>Expected column order (paste from Excel / Google Sheets):</strong><br />
-              <code style={{ fontSize: 12 }}>First Name &nbsp;│&nbsp; Last Name &nbsp;│&nbsp; Grade &nbsp;│&nbsp; DOB &nbsp;│&nbsp; ANW Ref No &nbsp;│&nbsp; School Name</code>
-              <br /><span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Grade can be a number (1–12), "Form 1–4", or "PP1/PP2". DOB can be 01-Jul-2013, 2013-07-01, or 01/07/2013.</span>
+              <code style={{ fontSize: 12 }}>First Name &nbsp;│&nbsp; Last Name &nbsp;│&nbsp; Grade &nbsp;│&nbsp; ANW Ref No &nbsp;│&nbsp; School Name</code>
+              <br /><span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Grade can be a number (1–12), "Form 1–4", or "PP1/PP2".</span>
             </div>
 
             <div className="form-group">
@@ -165,7 +162,7 @@ export function BulkUploadModal({ open, onClose, schools, onDone }) {
                 className="form-textarea"
                 rows={10}
                 style={{ fontFamily: 'monospace', fontSize: 13 }}
-                placeholder={"Margret Njeri\tKinuthia\t8\t01-Jul-2013\tANW 129\tRoots Junior Secondary\nAnotherFirst\tLastName\t5\t15-Mar-2014\tANW 130\tSpringfield Primary"}
+                placeholder={"Margret Njeri\tKinuthia\t8\tANW 129\tRoots Junior Secondary\nAnotherFirst\tLastName\t5\tANW 130\tSpringfield Primary"}
                 value={pasted}
                 onChange={e => setPasted(e.target.value)}
               />
@@ -195,7 +192,6 @@ export function BulkUploadModal({ open, onClose, schools, onDone }) {
                     <th>#</th>
                     <th>Name</th>
                     <th>Class</th>
-                    <th>DOB</th>
                     <th>Ref No</th>
                     <th>School</th>
                     <th>Status</th>
@@ -215,7 +211,6 @@ export function BulkUploadModal({ open, onClose, schools, onDone }) {
                         <>
                           <td className="font-bold">{r.first_name} {r.last_name}</td>
                           <td>{r.class_name}</td>
-                          <td>{r.dob || '—'}</td>
                           <td>{r.ref_no}</td>
                           <td>{r._schoolName}</td>
                         </>
