@@ -3,6 +3,7 @@ export const LEVELS = {
   lower_primary:    { label: 'Lower Primary',    classes: ['Grade 1','Grade 2','Grade 3'],                 curriculum: 'CBC' },
   upper_primary:    { label: 'Upper Primary',    classes: ['Grade 4','Grade 5','Grade 6'],                 curriculum: 'CBC' },
   junior_secondary: { label: 'Junior Secondary', classes: ['Grade 7','Grade 8','Grade 9'],                 curriculum: 'CBC' },
+  senior_secondary: { label: 'Senior Secondary', classes: ['Grade 10','Grade 11','Grade 12'],              curriculum: 'CBC' },
   secondary:        { label: 'Secondary',        classes: ['Form 1','Form 2','Form 3','Form 4'],           curriculum: '8-4-4' },
   tertiary:         { label: 'Tertiary',         classes: ['Year 1','Year 2','Year 3','Year 4','Year 5'],  curriculum: 'University' },
 };
@@ -12,6 +13,7 @@ export const SUBJECTS = {
   lower_primary:    ['Literacy','Kiswahili','Mathematics','Environmental Activities','Creative Arts','Religious Education','Physical Education'],
   upper_primary:    ['English','Kiswahili','Mathematics','Science & Technology','Social Studies','Religious Education','Creative Arts','Physical Education'],
   junior_secondary: ['English','Kiswahili','Mathematics','Integrated Science','Social Studies','Business Studies','Pre-Technical Studies','Creative Arts','Physical Education'],
+  senior_secondary: ['English','Kiswahili','Mathematics','Biology','Chemistry','Physics','History & Government','Geography','Business Studies','Computer Science','Agriculture','Creative Arts'],
   secondary:        ['English','Kiswahili','Mathematics','Biology','Chemistry','Physics','History & Government','Geography','Religious Education','Business Studies','Agriculture','Computer Studies'],
   tertiary:         ['Unit 1','Unit 2','Unit 3','Unit 4','Unit 5','Unit 6'],
 };

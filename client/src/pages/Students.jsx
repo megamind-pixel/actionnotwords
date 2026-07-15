@@ -318,6 +318,8 @@ export default function Students() {
       if (modal?.id) {
         const updated = await api.updateStudent(modal.id, form);
         setStudents(s => s.map(x => x.id===modal.id ? updated : x));
+        // refresh profile if it's open for this student
+        if (profile?.id === modal.id) setProfile(prev => ({ ...prev, ...updated }));
         toast.success('Student updated');
       } else {
         const created = await api.createStudent(form);

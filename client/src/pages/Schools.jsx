@@ -9,9 +9,12 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 const TYPES = {
   ecde: 'ECDE Centre',
   primary: 'Primary School',
-  secondary: 'Secondary School',
+  junior_secondary: 'Junior Secondary School (Grades 7–9)',
+  senior_secondary: 'Senior Secondary School (Grades 10–12)',
+  secondary: 'Secondary School (8-4-4)',
   mixed: 'Mixed (Pri+Sec)',
-  tertiary: 'Tertiary/College',
+  tvet: 'TVET / Vocational College',
+  tertiary: 'Tertiary/University',
 };
 const CURRICULA = { cbc: 'CBC', '844': '8-4-4', both: 'Both (Transition)' };
 
