@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { LEVELS, SUBJECTS, getGrade, calcMean, gradeColor, studentTrend } from '../lib/kenya';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { BulkUploadModal } from '../components/BulkUploadModal';
 
 function LevelPill({ level }) {
   const info = LEVELS[level];
@@ -296,6 +297,7 @@ export default function Students() {
   const [modal, setModal] = useState(null);
   const [profile, setProfile] = useState(null);
   const [delId, setDelId] = useState(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   async function load() {
     try {
@@ -376,6 +378,9 @@ export default function Students() {
               {Object.entries(LEVELS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
             </select>
           </div>
+          <button className="btn btn-secondary" onClick={() => setBulkOpen(true)}>
+            <Upload size={18}/> Bulk Import
+          </button>
           <button className="btn btn-primary" onClick={()=>setModal({})}>
             <Plus size={18}/> Add Student
           </button>
@@ -441,6 +446,13 @@ export default function Students() {
 
       <ProfileModal student={profile} open={!!profile} onClose={()=>setProfile(null)}
         onEdit={()=>{ setModal(profile); setProfile(null); }} />
+
+      <BulkUploadModal
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        schools={schools}
+        onDone={() => { setBulkOpen(false); load(); }}
+      />
 
       <ConfirmDialog open={!!delId} onClose={()=>setDelId(null)} onConfirm={deleteStudent}
         title="Permanently Delete Record?" message="This will remove the student profile and all associated academic history. This action cannot be undone." danger/>
